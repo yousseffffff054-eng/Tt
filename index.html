@@ -4,78 +4,303 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
   <title>التحقق | RIX</title>
+
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
   <style>
-    :root { --bg:#080d19; --card:rgba(20,31,53,.86); --line:rgba(148,163,184,.18); --text:#f8fafc; --muted:#a9b6ca; --ok:#34d399; --cyan:#22d3ee; --bad:#fb7185; }
-    *{box-sizing:border-box} html,body{margin:0;min-height:100%;background:radial-gradient(circle at 50% -10%,#17365a 0,#0b1425 42%,var(--bg) 78%);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
-    body{min-height:100vh;display:grid;place-items:center;padding:22px 16px}.wrap{width:min(430px,100%);text-align:center}
-    .brand{font-size:42px;filter:drop-shadow(0 0 18px #22d3ee55);margin-bottom:8px}.title{font-weight:900;letter-spacing:1.5px;font-size:21px;margin-bottom:18px;background:linear-gradient(90deg,var(--ok),var(--cyan));color:transparent;background-clip:text}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:28px 20px;box-shadow:0 18px 60px #0008;backdrop-filter:blur(16px)}
-    .icon{width:72px;height:72px;margin:0 auto 17px;border-radius:50%;display:grid;place-items:center;background:#17253b;color:var(--cyan);font-size:32px}.icon.ok{background:#064e3b;color:var(--ok)}.icon.bad{background:#4c0519;color:var(--bad)}
-    h1{font-size:20px;margin:0 0 9px}.status{font-size:15px;line-height:1.8;color:var(--muted);min-height:28px}.small{font-size:12px;color:#8190a7;margin-top:16px;line-height:1.7}
-    .bar{height:5px;background:#1e293b;border-radius:99px;overflow:hidden;margin-top:22px}.fill{height:100%;width:0;background:linear-gradient(90deg,var(--ok),var(--cyan));transition:width .35s ease}
-    .debug{display:none;margin-top:12px;text-align:left;direction:ltr;background:#020617;border:1px solid var(--line);padding:10px;border-radius:12px;color:#91a4bd;font:11px/1.55 ui-monospace,monospace;white-space:pre-wrap;word-break:break-word}
-    .footer{font-size:11px;color:#61718a;margin-top:16px;letter-spacing:1px}
+    :root {
+      --bg: #080d19;
+      --card: rgba(20, 31, 53, .86);
+      --line: rgba(148, 163, 184, .18);
+      --text: #f8fafc;
+      --muted: #a9b6ca;
+      --ok: #34d399;
+      --cyan: #22d3ee;
+      --bad: #fb7185;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(
+          circle at 50% -10%,
+          #17365a 0,
+          #0b1425 42%,
+          var(--bg) 78%
+        );
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 22px 16px;
+    }
+
+    .wrap {
+      width: min(430px, 100%);
+      text-align: center;
+    }
+
+    .brand {
+      font-size: 42px;
+      filter: drop-shadow(0 0 18px #22d3ee55);
+      margin-bottom: 8px;
+    }
+
+    .title {
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      font-size: 21px;
+      margin-bottom: 18px;
+      background: linear-gradient(90deg, var(--ok), var(--cyan));
+      color: transparent;
+      background-clip: text;
+      -webkit-background-clip: text;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 28px 20px;
+      box-shadow: 0 18px 60px #0008;
+      backdrop-filter: blur(16px);
+    }
+
+    .icon {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 17px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #17253b;
+      color: var(--cyan);
+      font-size: 32px;
+    }
+
+    .icon.ok {
+      background: #064e3b;
+      color: var(--ok);
+    }
+
+    .icon.bad {
+      background: #4c0519;
+      color: var(--bad);
+    }
+
+    h1 {
+      font-size: 20px;
+      margin: 0 0 9px;
+    }
+
+    .status {
+      font-size: 15px;
+      line-height: 1.8;
+      color: var(--muted);
+      min-height: 28px;
+    }
+
+    .small {
+      font-size: 12px;
+      color: #8190a7;
+      margin-top: 16px;
+      line-height: 1.7;
+    }
+
+    .bar {
+      height: 5px;
+      background: #1e293b;
+      border-radius: 99px;
+      overflow: hidden;
+      margin-top: 22px;
+    }
+
+    .fill {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--ok), var(--cyan));
+      transition: width .35s ease;
+    }
+
+    .debug {
+      display: none;
+      margin-top: 12px;
+      text-align: left;
+      direction: ltr;
+      background: #020617;
+      border: 1px solid var(--line);
+      padding: 10px;
+      border-radius: 12px;
+      color: #91a4bd;
+      font: 11px/1.55 ui-monospace, monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .footer {
+      font-size: 11px;
+      color: #61718a;
+      margin-top: 16px;
+      letter-spacing: 1px;
+    }
   </style>
 </head>
+
 <body>
   <main class="wrap">
     <div class="brand">🛡️</div>
-    <div class="title">𓆩 RIX • VERIFY 𓆪</div>
+
+    <div class="title">
+      𓆩 RIX • VERIFY 𓆪
+    </div>
+
     <section class="card" id="card">
       <div class="icon" id="icon">⏳</div>
+
       <h1 id="heading">جاري التحقق</h1>
-      <div class="status" id="status">ثواني قليلة وسيتم تأكيد أنك مستخدم حقيقي.</div>
-      <div class="bar"><div class="fill" id="fill"></div></div>
-      <div class="small" id="hint">لا تغلق الصفحة قبل ظهور رسالة النجاح.</div>
+
+      <div class="status" id="status">
+        ثواني قليلة وسيتم تأكيد أنك مستخدم حقيقي.
+      </div>
+
+      <div class="bar">
+        <div class="fill" id="fill"></div>
+      </div>
+
+      <div class="small" id="hint">
+        لا تغلق الصفحة قبل ظهور رسالة النجاح.
+      </div>
     </section>
+
     <pre class="debug" id="debug"></pre>
-    <div class="footer">RIX SECURITY</div>
+
+    <div class="footer">
+      RIX SECURITY
+    </div>
   </main>
-<script>
-(() => {
-  'use strict';
-  const tg = window.Telegram && window.Telegram.WebApp;
-  const $ = id => document.getElementById(id);
-  const debug = (msg) => { const box=$('debug'); box.style.display='block'; box.textContent += msg+'\n'; };
-  const setProgress = n => $('fill').style.width = `${Math.max(0,Math.min(100,n))}%`;
-  const success = () => { $('icon').className='icon ok'; $('icon').textContent='✓'; $('heading').textContent='تم التحقق بنجاح'; $('status').textContent='تم إرسال النتيجة إلى البوت. جاري الإغلاق...'; $('hint').textContent='إذا لم تتغير رسالة البوت، أرسل /start مرة أخرى.'; setProgress(100); };
-  const fail = (title, text) => { $('icon').className='icon bad'; $('icon').textContent='×'; $('heading').textContent=title; $('status').textContent=text; $('hint').textContent='افتح التحقق من زر البوت مباشرة، وليس من رابط خارجي.'; debug(text); };
 
-  if (!tg) { fail('افتحها من داخل Telegram','Telegram WebApp غير متاح.'); return; }
-  try { tg.ready(); tg.expand(); } catch (_) {}
+  <script>
+    (() => {
+      "use strict";
 
-  const user = tg.initDataUnsafe && tg.initDataUnsafe.user;
-  // sendData is intentionally required: it is the secure client-to-bot path
-  // for a Mini App launched from a KeyboardButton.
-  if (!tg.initData || tg.initData.length < 10 || !user || !user.id) {
-    fail('طريقة فتح غير صحيحة','لم تصل بيانات Telegram. الزر الحالي يجب أن يكون KeyboardButton وليس رابطًا عاديًا.');
-    return;
-  }
-  if (typeof tg.sendData !== 'function') {
-    fail('نوع الزر غير متوافق','هذا التطبيق مفتوح من زر Inline. الإرسال المباشر للبوت يحتاج KeyboardButton أو Endpoint وسيط.');
-    return;
-  }
+      const tg =
+        window.Telegram &&
+        window.Telegram.WebApp;
 
-  setProgress(20);
-  setTimeout(() => setProgress(55), 250);
-  setTimeout(() => {
-    const payload = {
-      action: 'verify',
-      user_id: Number(user.id),
-      first_name: user.first_name || '',
-      username: user.username || '',
-      language: user.language_code || 'ar',
-      ts: Date.now(),
-      nonce: (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2))
-    };
-    try {
-      tg.sendData(JSON.stringify(payload));
-      success();
-      setTimeout(() => { try { tg.close(); } catch (_) {} }, 1100);
-    } catch (e) { fail('تعذر إرسال النتيجة','حدث خطأ أثناء إرسال النتيجة إلى البوت.'); debug(String(e)); }
-  }, 700);
-})();
-</script>
+      const $ = (id) => document.getElementById(id);
+
+      const debug = (message) => {
+        const box = $("debug");
+        box.style.display = "block";
+        box.textContent += message + "\n";
+      };
+
+      const setProgress = (value) => {
+        const percentage = Math.max(0, Math.min(100, value));
+        $("fill").style.width = `${percentage}%`;
+      };
+
+      const success = () => {
+        $("icon").className = "icon ok";
+        $("icon").textContent = "✓";
+
+        $("heading").textContent = "تم التحقق بنجاح";
+
+        $("status").textContent =
+          "تم إرسال النتيجة إلى البوت. جاري الإغلاق...";
+
+        $("hint").textContent =
+          "إذا لم تتغير رسالة البوت، أرسل /start مرة أخرى.";
+
+        setProgress(100);
+      };
+
+      const fail = (title, message) => {
+        $("icon").className = "icon bad";
+        $("icon").textContent = "×";
+
+        $("heading").textContent = title;
+        $("status").textContent = message;
+
+        $("hint").textContent =
+          "افتح التحقق من زر البوت مباشرة، وليس من رابط خارجي.";
+
+        debug(message);
+      };
+
+      if (!tg) {
+        fail(
+          "افتحها من داخل Telegram",
+          "Telegram WebApp غير متاح."
+        );
+        return;
+      }
+
+      try {
+        tg.ready();
+        tg.expand();
+      } catch (_) {}
+
+      /*
+       * لا نعتمد على initData أو initDataUnsafe هنا.
+       * Telegram سيرسل web_app_data إلى البوت،
+       * والبوت يتعرف على المستخدم من update.effective_user.
+       */
+      if (typeof tg.sendData !== "function") {
+        fail(
+          "نوع الزر غير متوافق",
+          "sendData غير متاح. افتح الصفحة من زر KeyboardButton داخل محادثة البوت الخاصة."
+        );
+        return;
+      }
+
+      setProgress(20);
+
+      setTimeout(() => {
+        setProgress(55);
+      }, 250);
+
+      setTimeout(() => {
+        const payload = {
+          action: "verify",
+          ts: Date.now(),
+          nonce:
+            crypto.randomUUID
+              ? crypto.randomUUID()
+              : Math.random().toString(36).slice(2)
+        };
+
+        try {
+          tg.sendData(JSON.stringify(payload));
+
+          success();
+
+          setTimeout(() => {
+            try {
+              tg.close();
+            } catch (_) {}
+          }, 1100);
+
+        } catch (error) {
+          fail(
+            "تعذر إرسال النتيجة",
+            "حدث خطأ أثناء إرسال النتيجة إلى البوت."
+          );
+
+          debug(String(error));
+        }
+      }, 700);
+    })();
+  </script>
 </body>
 </html>
