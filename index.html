@@ -1,436 +1,81 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>تحقق | RIX</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-        html, body {
-            height: 100%;
-            overflow-y: auto;
-        }
-        body {
-            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a3e 50%, #0f0f1e 100%);
-            color: #fff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 24px 16px;
-            text-align: center;
-            user-select: none;
-            min-height: 100vh;
-        }
-        .logo {
-            font-size: 48px;
-            margin-bottom: 12px;
-            filter: drop-shadow(0 0 20px rgba(74, 222, 128, 0.3));
-        }
-        .title {
-            font-size: 20px;
-            font-weight: 800;
-            margin-bottom: 24px;
-            letter-spacing: 2px;
-            background: linear-gradient(90deg, #4ade80, #22d3ee);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 28px 20px;
-            max-width: 420px;
-            width: 100%;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            transition: all 0.4s ease;
-            margin-bottom: 16px;
-        }
-        .spinner {
-            width: 52px;
-            height: 52px;
-            border: 4px solid rgba(255, 255, 255, 0.08);
-            border-top-color: #4ade80;
-            border-radius: 50%;
-            animation: spin 0.9s linear infinite;
-            margin: 0 auto 18px;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .check-circle {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #4ade80, #22d3ee);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 18px;
-            animation: pop 0.4s ease;
-        }
-        @keyframes pop {
-            0% { transform: scale(0); }
-            50% { transform: scale(1.15); }
-            100% { transform: scale(1); }
-        }
-        .check-circle svg {
-            width: 30px;
-            height: 30px;
-            stroke: #052e16;
-            stroke-width: 3.5;
-            fill: none;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-        .error-circle {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #ef4444, #f97316);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 18px;
-        }
-        .error-circle svg {
-            width: 30px;
-            height: 30px;
-            stroke: #fff;
-            stroke-width: 3.5;
-            fill: none;
-            stroke-linecap: round;
-        }
-        .status {
-            font-size: 15px;
-            color: #cbd5e1;
-            line-height: 1.7;
-            transition: color 0.3s;
-        }
-        .card.success {
-            border-color: rgba(74, 222, 128, 0.4);
-            box-shadow: 0 20px 60px rgba(74, 222, 128, 0.2);
-        }
-        .card.success .spinner { display: none; }
-        .card.success .check-circle { display: flex; }
-        .card.success .status {
-            color: #4ade80;
-            font-weight: 600;
-            font-size: 16px;
-        }
-        .card.error {
-            border-color: rgba(239, 68, 68, 0.4);
-        }
-        .card.error .spinner { display: none; }
-        .card.error .error-circle { display: flex; }
-        .card.error .status {
-            color: #f87171;
-            font-weight: 600;
-        }
-        /* ⬅️ Debug box — يظهر كل حاجة تحدث */
-        .debug-box {
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 12px;
-            max-width: 420px;
-            width: 100%;
-            text-align: left;
-            font-family: 'Courier New', monospace;
-            font-size: 11px;
-            color: #94a3b8;
-            direction: ltr;
-            max-height: 240px;
-            overflow-y: auto;
-            margin-top: 8px;
-        }
-        .debug-box .line {
-            margin-bottom: 4px;
-            word-break: break-all;
-        }
-        .debug-box .ok { color: #4ade80; }
-        .debug-box .err { color: #ef4444; }
-        .debug-box .warn { color: #fbbf24; }
-        .debug-box .info { color: #60a5fa; }
-        .footer {
-            margin-top: 20px;
-            font-size: 11px;
-            color: #64748b;
-            letter-spacing: 1px;
-        }
-        .progress-bar {
-            height: 3px;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 3px;
-            overflow: hidden;
-            margin-top: 16px;
-            display: none;
-        }
-        .progress-bar.active { display: block; }
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #4ade80, #22d3ee);
-            width: 0%;
-            transition: width 1.2s ease;
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>التحقق | RIX</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root { --bg:#080d19; --card:rgba(20,31,53,.86); --line:rgba(148,163,184,.18); --text:#f8fafc; --muted:#a9b6ca; --ok:#34d399; --cyan:#22d3ee; --bad:#fb7185; }
+    *{box-sizing:border-box} html,body{margin:0;min-height:100%;background:radial-gradient(circle at 50% -10%,#17365a 0,#0b1425 42%,var(--bg) 78%);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+    body{min-height:100vh;display:grid;place-items:center;padding:22px 16px}.wrap{width:min(430px,100%);text-align:center}
+    .brand{font-size:42px;filter:drop-shadow(0 0 18px #22d3ee55);margin-bottom:8px}.title{font-weight:900;letter-spacing:1.5px;font-size:21px;margin-bottom:18px;background:linear-gradient(90deg,var(--ok),var(--cyan));color:transparent;background-clip:text}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:28px 20px;box-shadow:0 18px 60px #0008;backdrop-filter:blur(16px)}
+    .icon{width:72px;height:72px;margin:0 auto 17px;border-radius:50%;display:grid;place-items:center;background:#17253b;color:var(--cyan);font-size:32px}.icon.ok{background:#064e3b;color:var(--ok)}.icon.bad{background:#4c0519;color:var(--bad)}
+    h1{font-size:20px;margin:0 0 9px}.status{font-size:15px;line-height:1.8;color:var(--muted);min-height:28px}.small{font-size:12px;color:#8190a7;margin-top:16px;line-height:1.7}
+    .bar{height:5px;background:#1e293b;border-radius:99px;overflow:hidden;margin-top:22px}.fill{height:100%;width:0;background:linear-gradient(90deg,var(--ok),var(--cyan));transition:width .35s ease}
+    .debug{display:none;margin-top:12px;text-align:left;direction:ltr;background:#020617;border:1px solid var(--line);padding:10px;border-radius:12px;color:#91a4bd;font:11px/1.55 ui-monospace,monospace;white-space:pre-wrap;word-break:break-word}
+    .footer{font-size:11px;color:#61718a;margin-top:16px;letter-spacing:1px}
+  </style>
 </head>
 <body>
-    <div class="logo">🤖</div>
-    <div class="title">𓆩 𝗥 𝗜 𝗫  •  𝗩𝗘𝗥𝗜𝗙𝗬 𓆪</div>
+  <main class="wrap">
+    <div class="brand">🛡️</div>
+    <div class="title">𓆩 RIX • VERIFY 𓆪</div>
+    <section class="card" id="card">
+      <div class="icon" id="icon">⏳</div>
+      <h1 id="heading">جاري التحقق</h1>
+      <div class="status" id="status">ثواني قليلة وسيتم تأكيد أنك مستخدم حقيقي.</div>
+      <div class="bar"><div class="fill" id="fill"></div></div>
+      <div class="small" id="hint">لا تغلق الصفحة قبل ظهور رسالة النجاح.</div>
+    </section>
+    <pre class="debug" id="debug"></pre>
+    <div class="footer">RIX SECURITY</div>
+  </main>
+<script>
+(() => {
+  'use strict';
+  const tg = window.Telegram && window.Telegram.WebApp;
+  const $ = id => document.getElementById(id);
+  const debug = (msg) => { const box=$('debug'); box.style.display='block'; box.textContent += msg+'\n'; };
+  const setProgress = n => $('fill').style.width = `${Math.max(0,Math.min(100,n))}%`;
+  const success = () => { $('icon').className='icon ok'; $('icon').textContent='✓'; $('heading').textContent='تم التحقق بنجاح'; $('status').textContent='تم إرسال النتيجة إلى البوت. جاري الإغلاق...'; $('hint').textContent='إذا لم تتغير رسالة البوت، أرسل /start مرة أخرى.'; setProgress(100); };
+  const fail = (title, text) => { $('icon').className='icon bad'; $('icon').textContent='×'; $('heading').textContent=title; $('status').textContent=text; $('hint').textContent='افتح التحقق من زر البوت مباشرة، وليس من رابط خارجي.'; debug(text); };
 
-    <div class="card" id="card">
-        <div class="spinner" id="spinner"></div>
+  if (!tg) { fail('افتحها من داخل Telegram','Telegram WebApp غير متاح.'); return; }
+  try { tg.ready(); tg.expand(); } catch (_) {}
 
-        <div class="check-circle" id="checkCircle">
-            <svg viewBox="0 0 24 24">
-                <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-        </div>
+  const user = tg.initDataUnsafe && tg.initDataUnsafe.user;
+  // sendData is intentionally required: it is the secure client-to-bot path
+  // for a Mini App launched from a KeyboardButton.
+  if (!tg.initData || tg.initData.length < 10 || !user || !user.id) {
+    fail('طريقة فتح غير صحيحة','لم تصل بيانات Telegram. الزر الحالي يجب أن يكون KeyboardButton وليس رابطًا عاديًا.');
+    return;
+  }
+  if (typeof tg.sendData !== 'function') {
+    fail('نوع الزر غير متوافق','هذا التطبيق مفتوح من زر Inline. الإرسال المباشر للبوت يحتاج KeyboardButton أو Endpoint وسيط.');
+    return;
+  }
 
-        <div class="error-circle" id="errorCircle">
-            <svg viewBox="0 0 24 24">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-        </div>
-
-        <div class="status" id="status">جاري التحميل...</div>
-
-        <div class="progress-bar" id="progressBar">
-            <div class="progress-fill" id="progressFill"></div>
-        </div>
-    </div>
-
-    <!-- ⬅️ منطقة التشخيص -->
-    <div class="debug-box" id="debugBox">
-        <div class="line info">[INIT] بدء التشغيل...</div>
-    </div>
-
-    <div class="footer">RIX SECURITY • v2.0</div>
-
-    <script>
-        // ═══════════════════════════════════════════════════════
-        // ═══  Debug logger  ════════════════════════════════════
-        // ═══════════════════════════════════════════════════════
-        const debugBox = document.getElementById('debugBox');
-
-        function log(msg, cls) {
-            cls = cls || 'info';
-            const line = document.createElement('div');
-            line.className = 'line ' + cls;
-            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
-            line.textContent = '[' + time + '] ' + msg;
-            debugBox.appendChild(line);
-            debugBox.scrollTop = debugBox.scrollHeight;
-            console.log(msg);
-        }
-
-        // التقاط الأخطاء غير المتوقعة
-        window.addEventListener('error', function(e) {
-            log('JS ERROR: ' + e.message, 'err');
-        });
-        window.addEventListener('unhandledrejection', function(e) {
-            log('UNHANDLED: ' + (e.reason && e.reason.message ? e.reason.message : e.reason), 'err');
-        });
-
-        // ═══════════════════════════════════════════════════════
-        // ═══  فحص Telegram.WebApp  ═════════════════════════════
-        // ═══════════════════════════════════════════════════════
-        log('فحص window.Telegram...', 'info');
-
-        if (!window.Telegram) {
-            log('❌ window.Telegram غير موجود! الصفحة مش جوه تلغرام', 'err');
-            setError('هذه الصفحة لازم تُفتح من داخل تلغرام فقط');
-        } else if (!window.Telegram.WebApp) {
-            log('❌ Telegram.WebApp غير موجود!', 'err');
-            setError('Telegram WebApp غير متاح');
-        } else {
-            log('✅ Telegram.WebApp موجود', 'ok');
-        }
-
-        const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-
-        // ═══════════════════════════════════════════════════════
-        // ═══  تهيئة WebApp  ════════════════════════════════════
-        // ═══════════════════════════════════════════════════════
-        if (tg) {
-            try {
-                tg.ready();
-                log('✅ tg.ready() تم', 'ok');
-            } catch (e) {
-                log('⚠️ tg.ready() فشل: ' + e.message, 'warn');
-            }
-
-            try {
-                tg.expand();
-                log('✅ tg.expand() تم', 'ok');
-            } catch (e) {
-                log('⚠️ tg.expand() فشل: ' + e.message, 'warn');
-            }
-
-            try {
-                if (tg.setHeaderColor) tg.setHeaderColor('#0f0f1e');
-                if (tg.setBackgroundColor) tg.setBackgroundColor('#0f0f1e');
-                if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
-                log('✅ الألوان والإعدادات تمت', 'ok');
-            } catch (e) {
-                log('⚠️ فشل الإعدادات: ' + e.message, 'warn');
-            }
-
-            log('Platform: ' + (tg.platform || 'unknown'), 'info');
-            log('Version: ' + (tg.version || 'unknown'), 'info');
-            log('ColorScheme: ' + (tg.colorScheme || 'unknown'), 'info');
-
-            // فحص initData
-            const initData = tg.initData || '';
-            log('initData.length = ' + initData.length, initData.length > 0 ? 'ok' : 'err');
-
-            if (initData.length === 0) {
-                log('❌ initData فاضي! الصفحة مش مفتوحة من زر تلغرام', 'err');
-            }
-
-            // فحص المستخدم
-            const user = tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
-            if (user) {
-                log('✅ user_id = ' + user.id, 'ok');
-                log('   first_name = ' + (user.first_name || ''), 'info');
-                log('   username = ' + (user.username || ''), 'info');
-            } else {
-                log('❌ initDataUnsafe.user فاضي!', 'err');
-            }
-        }
-
-        // ═══════════════════════════════════════════════════════
-        // ═══  DOM refs  ════════════════════════════════════════
-        // ═══════════════════════════════════════════════════════
-        const statusEl = document.getElementById('status');
-        const cardEl = document.getElementById('card');
-        const progressBar = document.getElementById('progressBar');
-        const progressFill = document.getElementById('progressFill');
-
-        function setStatus(text) {
-            statusEl.textContent = text;
-            log('STATUS: ' + text, 'info');
-        }
-
-        function setSuccess(text) {
-            cardEl.classList.add('success');
-            cardEl.classList.remove('error');
-            statusEl.textContent = text || '✅ تم التحقق بنجاح!';
-            log('SUCCESS: ' + (text || '✅'), 'ok');
-        }
-
-        function setError(text) {
-            cardEl.classList.add('error');
-            cardEl.classList.remove('success');
-            statusEl.textContent = text || '❌ حدث خطأ';
-            log('ERROR: ' + (text || '❌'), 'err');
-        }
-
-        // ═══════════════════════════════════════════════════════
-        // ═══  عملية التحقق  ════════════════════════════════════
-        // ═══════════════════════════════════════════════════════
-        function startVerification() {
-            log('▶️ بدء عملية التحقق', 'info');
-            setStatus('جاري التحقق...');
-
-            progressBar.classList.add('active');
-            setTimeout(function() { progressFill.style.width = '40%'; }, 100);
-            setTimeout(function() { progressFill.style.width = '75%'; }, 500);
-            setTimeout(function() {
-                progressFill.style.width = '100%';
-                completeVerification();
-            }, 1100);
-        }
-
-        function completeVerification() {
-            log('🔧 completeVerification() بدأت', 'info');
-
-            // فحص tg
-            if (!tg) {
-                log('❌ tg غير معرف — نتوقف', 'err');
-                setError('WebApp غير متاح');
-                return;
-            }
-
-            // فحص initData
-            const initData = tg.initData || '';
-            if (!initData || initData.length < 10) {
-                log('❌ initData فاضي أو قصير جدًا — نتوقف', 'err');
-                setError('افتح الصفحة من داخل البوت');
-                return;
-            }
-
-            // فحص المستخدم
-            const user = tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
-            if (!user || !user.id) {
-                log('❌ user.id مش موجود — نتوقف', 'err');
-                setError('تعذر قراءة بياناتك');
-                return;
-            }
-
-            // بناء الـ payload
-            const payload = {
-                action: 'verify',
-                user_id: user.id,
-                first_name: user.first_name || '',
-                username: user.username || '',
-                language: user.language_code || 'ar',
-                ts: Date.now(),
-                nonce: Math.random().toString(36).substring(2, 15)
-            };
-
-            const payloadStr = JSON.stringify(payload);
-            log('📤 Payload: ' + payloadStr, 'info');
-
-            // فحص توفر sendData
-            if (typeof tg.sendData !== 'function') {
-                log('❌ tg.sendData مش دالة!', 'err');
-                setError('sendData غير متاح');
-                return;
-            }
-            log('✅ tg.sendData موجودة', 'ok');
-
-            // محاولة الإرسال
-            try {
-                tg.sendData(payloadStr);
-                log('✅ sendData تم استدعاءه بنجاح', 'ok');
-                setSuccess('✅ تم التحقق! جاري الإغلاق...');
-
-                setTimeout(function() {
-                    log('🚪 إغلاق WebApp...', 'info');
-                    try {
-                        tg.close();
-                    } catch (e) {
-                        log('⚠️ tg.close() فشل: ' + e.message, 'warn');
-                    }
-                }, 1500);
-            } catch (e) {
-                log('❌ sendData فشل: ' + (e.message || e), 'err');
-                log('   Stack: ' + (e.stack || 'N/A'), 'err');
-                setError('فشل الإرسال — ' + (e.message || 'unknown'));
-                // ما نقفلش عشان المستخدم يشوف الخطأ
-            }
-        }
-
-        // ═══════════════════════════════════════════════════════
-        // ═══  بدء  ════════════════════════════════════════════
-        // ═══════════════════════════════════════════════════════
-        window.addEventListener('load', function() {
-            log('📄 window.load', 'info');
-            setTimeout(startVerification, 400);
-        });
-    </script>
+  setProgress(20);
+  setTimeout(() => setProgress(55), 250);
+  setTimeout(() => {
+    const payload = {
+      action: 'verify',
+      user_id: Number(user.id),
+      first_name: user.first_name || '',
+      username: user.username || '',
+      language: user.language_code || 'ar',
+      ts: Date.now(),
+      nonce: (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2))
+    };
+    try {
+      tg.sendData(JSON.stringify(payload));
+      success();
+      setTimeout(() => { try { tg.close(); } catch (_) {} }, 1100);
+    } catch (e) { fail('تعذر إرسال النتيجة','حدث خطأ أثناء إرسال النتيجة إلى البوت.'); debug(String(e)); }
+  }, 700);
+})();
+</script>
 </body>
 </html>
