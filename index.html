@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحقق | RIX</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            text-align: center;
+        }
+        .logo { font-size: 42px; margin-bottom: 8px; }
+        .title { font-size: 22px; font-weight: 700; margin-bottom: 20px; letter-spacing: 1px; }
+        .card {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 18px;
+            padding: 28px 24px;
+            max-width: 380px;
+            width: 100%;
+        }
+        .spinner {
+            width: 52px; height: 52px;
+            border: 4px solid rgba(255,255,255,0.12);
+            border-top-color: #4ade80;
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .status { font-size: 15px; color: #cbd5e1; line-height: 1.7; }
+        .success .spinner { display: none; }
+        .success .check {
+            width: 60px; height: 60px; border-radius: 50%;
+            background: #4ade80; color: #052e16; font-size: 34px; font-weight: 900;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px;
+        }
+        .check { display: none; }
+        .success .check { display: flex; }
+        .success .status { color: #4ade80; font-weight: 600; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <div class="logo">🤖</div>
+    <div class="title">𓆩 𝗥 𝗜 𝗫  •  𝗩𝗘𝗥𝗜𝗙𝗬 𓆪</div>
+
+    <div class="card" id="card">
+        <div class="spinner"></div>
+        <div class="check">✓</div>
+        <div class="status" id="status">جاري التحقق أنك لست روبوت...</div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+        tg.setHeaderColor('#1a1a2e');
+        tg.setBackgroundColor('#1a1a2e');
+
+        const user = tg.initDataUnsafe?.user;
+
+        function showSuccess() {
+            document.getElementById('card').classList.add('success');
+            document.getElementById('status').textContent = '✅ تم التحقق! جاري الإغلاق...';
+        }
+
+        function showError(msg) {
+            document.getElementById('status').innerHTML = '❌ ' + msg;
+            document.querySelector('.spinner').style.borderTopColor = '#ef4444';
+        }
+
+        setTimeout(() => {
+            if (!user || !user.id) {
+                showError('لم نتمكن من قراءة بياناتك. افتح الصفحة من داخل البوت.');
+                setTimeout(() => tg.close(), 2500);
+                return;
+            }
+            // إرسال البيانات للبوت
+            try {
+                tg.sendData(JSON.stringify({
+                    action: "verify",
+                    user_id: user.id,
+                    first_name: user.first_name || "",
+                    username: user.username || "",
+                    ts: Date.now()
+                }));
+                showSuccess();
+                setTimeout(() => tg.close(), 1800);
+            } catch (e) {
+                showError('فشل الإرسال — حاول تاني.');
+            }
+        }, 1200);
+    </script>
+</body>
+</html>
